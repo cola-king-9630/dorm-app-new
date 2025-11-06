@@ -1,2 +1,4 @@
-Flask==2.3.3
+# requirements.txt
+Flask==3.0.0
 pg8000==1.30.3
+Werkzeug==3.0.1  # Flask 3.0.0 依赖这个版本
