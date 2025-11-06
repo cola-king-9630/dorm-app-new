@@ -5,7 +5,8 @@ from flask import Flask, request, jsonify, render_template
 import pg8000
 from datetime import datetime, time
 import urllib.parse
-from urllib.parse import urlparse  # 使用更标准的 urlparse
+from urllib.parse import urlparse
+import ssl  # 新增 SSL 模块导入
 
 # 设置详细的日志记录，以便在 Vercel 日志中看到错误信息
 logging.basicConfig(level=logging.DEBUG)
@@ -20,7 +21,7 @@ logger.debug(f"DATABASE_URL retrieved: {DATABASE_URL is not None}")  # 日志检
 def get_db_connection():
     """创建并返回数据库连接"""
     if not DATABASE_URL:
-        raise ValueError("DATABASE_URL environment variable is not set")
+        raise ValueError("DATABASE_POSTGRES_URL environment variable is not set")
     
     # 使用 urlparse 解析数据库连接字符串（更标准的方式）
     url = urlparse(DATABASE_URL)
@@ -35,6 +36,11 @@ def get_db_connection():
     logger.debug(f"Connecting to: host={host}, port={port}, dbname={dbname}, user={user}")
     
     try:
+        # 创建不验证证书的 SSL 上下文
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        
         # 使用 pg8000 建立连接
         conn = pg8000.connect(
             host=host,
@@ -42,7 +48,7 @@ def get_db_connection():
             user=user,
             password=password,
             database=dbname,
-            ssl_context=True
+            ssl_context=ssl_context  # 使用自定义的 SSL 上下文
         )
         logger.debug("Database connection successful")
         return conn
