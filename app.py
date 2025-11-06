@@ -1,8 +1,14 @@
-from flask import Flask, request, jsonify, render_template
 import os
+import logging
+import sys
+from flask import Flask, request, jsonify, render_template
 import pg8000
 from datetime import datetime, time
 import urllib.parse
+
+# 设置详细的日志记录
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
