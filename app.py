@@ -42,7 +42,8 @@ def get_db_connection():
             user=user,
             password=password,
             database=dbname,
-            ssl_context=True  # Supabase 要求 SSL 连接
+            ssl=True,  # 启用 SSL
+            ssl_context=None  # 禁用证书验证（解决验证失败问题）
         )
         logger.debug("Database connection successful")
         return conn
