@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宿舍睡眠记录</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { margin-bottom: 30px; }
+        input, button { padding: 10px; margin: 5px; }
+        .record { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🌙 我的睡眠记录</h1>
+    
+    <div class="container">
+        <h3>添加今日记录</h3>
+        <input type="time" id="sleepTime">
+        <input type="date" id="recordDate">
+        <button onclick="submitRecord()">提交记录</button>
+        <p id="message"></p>
+    </div>
+
+    <div class="container">
+        <h3>统计信息</h3>
+        <p>总记录数: <span id="totalRecords">0</span></p>
+        <p>总熬夜时间: <span id="totalLateMinutes">0</span> 分钟</p>
+        <button onclick="loadStats()">刷新统计</button>
+    </div>
+
+    <div class="container">
+        <h3>历史记录</h3>
+        <div id="recordsList"></div>
+        <button onclick="loadRecords()">刷新记录</button>
+    </div>
+
+    <script>
+        // 设置默认日期为今天
+        document.getElementById('recordDate').valueAsDate = new Date();
+
+        async function submitRecord() {
+            const time = document.getElementById('sleepTime').value;
+            const date = document.getElementById('recordDate').value;
+            const messageEl = document.getElementById('message');
+
+            if (!time) {
+                messageEl.textContent = '请选择睡眠时间！';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/records', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sleep_time: time, record_date: date })
+                });
+                const result = await response.json();
+                messageEl.textContent = result.status || result.message;
+                if (response.ok) {
+                    loadRecords();
+                    loadStats();
+                }
+            } catch (error) {
+                messageEl.textContent = '提交失败，请重试！';
+            }
+        }
+
+        async function loadRecords() {
+            const response = await fetch('/api/records');
+            const records = await response.json();
+            const listEl = document.getElementById('recordsList');
+            listEl.innerHTML = records.map(record => 
+                `<div class="record">日期: ${record.record_date} | 睡眠时间: ${record.sleep_time}</div>`
+            ).join('');
+        }
+
+        async function loadStats() {
+            const response = await fetch('/api/stats');
+            const stats = await response.json();
+            document.getElementById('totalRecords').textContent = stats.total_records;
+            document.getElementById('totalLateMinutes').textContent = stats.total_late_minutes;
+        }
+
+        // 页面加载时自动获取记录和统计
+        loadRecords();
+        loadStats();
+    </script>
+</body>
+</html>
