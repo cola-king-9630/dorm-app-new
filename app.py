@@ -42,8 +42,7 @@ def get_db_connection():
             user=user,
             password=password,
             database=dbname,
-            ssl=True,  # 启用 SSL
-            ssl_context=None  # 禁用证书验证（解决验证失败问题）
+            ssl_context=True
         )
         logger.debug("Database connection successful")
         return conn
