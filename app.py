@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # 从环境变量获取 Supabase PostgreSQL 数据库连接字符串
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get('DATABASE_POSTGRES_URL')
 logger.debug(f"DATABASE_URL retrieved: {DATABASE_URL is not None}")  # 日志检查
 
 def get_db_connection():
